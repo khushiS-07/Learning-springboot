@@ -3,6 +3,7 @@ package com.khushi.project_alpha_one.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,42 +14,43 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.khushi.project_alpha_one.model.Product;
-
-
+import com.khushi.project_alpha_one.service.ProductService;
 
 @RestController
 @RequestMapping("api/v1")
 
 public class ProductCotroller {
 	
-	List<Product> products = new ArrayList<>();
+	//Dependency Injection
+	
+	@Autowired
+	private ProductService productService;
+	
 	
 	@GetMapping("/viewproducts")
 	List<Product> getProducts(){
-		return products;
+		return productService.getProducts();
 	}
 	
 	
 	@PostMapping("/sendproducts")
 	String addProducts(@RequestBody Product product) {
-		products.add(product);
-		return "Product " + product + " is added in list!";
+		String message = productService.addProducts(product);
+		return message;
 	}
 	
 	
 	@DeleteMapping("/viewproducts/d/{prodId}")
 	String removeproducts(@PathVariable("prodId") int productId){
-		productId = productId-1;
-		products.remove(productId);
-		return "Category removed successfully";
+		String message = productService.removeproducts(productId);
+		return message;
 	}
 	
 	
 	@PutMapping("/viewproducts/u/{prodId}")
 	String updateproducts(@PathVariable("prodId") int productId, @RequestBody Product product){
-		productId = productId-1;
-		products.set(productId, product);
-		return "Category updated sucessfully..";
+		String message = productService.updateproducts(productId, product);
+		return message;
 	}
 	
 	
