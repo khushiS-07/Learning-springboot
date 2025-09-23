@@ -2,7 +2,11 @@ package com.khushi.project_alpha_one.model;
 
 import java.time.LocalDate;
 
+
+
+
 public class Product {
+	
 	
 	private Long productId;
 	private String productName;
