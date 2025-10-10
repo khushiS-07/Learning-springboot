@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.khushi.project_alpha_one.dto.ProductDTO;
+import com.khushi.project_alpha_one.dto.ProductResponse;
 import com.khushi.project_alpha_one.model.Product;
 import com.khushi.project_alpha_one.service.ProductService;
 
@@ -29,29 +31,36 @@ public class ProductCotroller {
 	
 	
 	@GetMapping("/viewproducts")
-	ResponseEntity<List<Product>> getProducts(){
-		List<Product> item = productService.getProducts();
+	ResponseEntity<ProductResponse> getProducts(){
+		ProductResponse item = productService.getProducts();
 		return ResponseEntity.ok().body(item);
 	}
 	
 	
+	@GetMapping("/view-one-product/{prodId}")
+	ResponseEntity<ProductDTO> getOneProduct(@PathVariable("prodId") Long productId){
+		ProductDTO viewOneItem = productService.getOneProduct(productId);
+		return ResponseEntity.ok().body(viewOneItem);
+	}
+	
+	
 	@PostMapping("/sendproducts")
-	ResponseEntity<String> addProducts(@RequestBody Product product) {
-		String addeditem = productService.addProducts(product);
+	ResponseEntity<ProductDTO> addProducts(@RequestBody ProductDTO productDTO) {
+		ProductDTO addeditem = productService.addProducts(productDTO);
 		return ResponseEntity.accepted().body(addeditem);
 	}
 	
 	
 	@DeleteMapping("/viewproducts/d/{prodId}")
-	ResponseEntity<String> removeproducts(@PathVariable("prodId") int productId){
-		String deletedItem = productService.removeproducts(productId);
+	ResponseEntity<ProductDTO> removeproducts(@PathVariable("prodId") Long productId){
+		ProductDTO deletedItem = productService.removeproducts(productId);
 		return ResponseEntity.ok().body(deletedItem);
 	}
 	
 	
 	@PutMapping("/viewproducts/u/{prodId}")
-	ResponseEntity<String> updateproducts(@PathVariable("prodId") int productId, @RequestBody Product product){
-		String updatedItem = productService.updateproducts(productId, product);
+	ResponseEntity<ProductDTO> updateproducts(@PathVariable("prodId") Long productId, @RequestBody ProductDTO productDTO){
+		ProductDTO updatedItem = productService.updateproducts(productId, productDTO);
 		return ResponseEntity.ok().body(updatedItem);
 	}
 	

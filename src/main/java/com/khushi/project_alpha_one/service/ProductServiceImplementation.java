@@ -5,61 +5,89 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.khushi.project_alpha_one.dto.ProductDTO;
+import com.khushi.project_alpha_one.dto.ProductResponse;
 import com.khushi.project_alpha_one.exception.NotFoundException;
 import com.khushi.project_alpha_one.model.Product;
+import com.khushi.project_alpha_one.repo.ProductRepository;
 
 
 @Service
 public class ProductServiceImplementation implements ProductService {
 	
+	@Autowired
+	private ProductRepository productRepo;
+	
+	@Autowired
+	private ModelMapper modelMapper;
+	
 	List<Product> products = new ArrayList<>();
 
 	@Override
-	public List<Product> getProducts() {
+	public ProductResponse getProducts() {
 		// TODO Auto-generated method stub
-		return products;
+		List<Product> products = productRepo.findAll();
+		List<ProductDTO> convertedProduct = products.stream()
+				.map(p-> modelMapper.map(p, ProductDTO.class))
+				.toList();
+		ProductResponse productResponse = new ProductResponse();
+		productResponse.setContent(convertedProduct);
+		return productResponse;
 	}
 
 	@Override
-	public String addProducts(Product product) {
+	public ProductDTO addProducts( ProductDTO productDTO) {
 		// TODO Auto-generated method stub
-		products.add(product);
-		return "Product is with id : " + product.getProductId() + " Added sucessfully!";
-	}
-
-	@Override
-	public String removeproducts(int productId) {
-		// TODO Auto-generated method stub
-		Long id = Long.valueOf(productId);
-		Product removed = findIdOrThrow(id);
-		products.remove(removed);
-		return "Product removed successfully with id : " + productId;
-	}
-
-	@Override
-	public String updateproducts(int productId, Product product) {
-		// TODO Auto-generated method stub
-		Long id = Long.valueOf(productId);
-		Product updated = findIdOrThrow(id);
-		int index = products.indexOf(updated);
-		products.set(index, product);
-		return "Product updated sucessfully..";
-	}
-	
-	
-	
-	// Helper Method
-	
-	private Product findIdOrThrow(Long id) {
-		Optional<Product> opt = products.stream()
-				.filter(c-> c.getProductId() != null && c.getProductId().equals(id))
-				.findFirst();
 		
-		return opt.orElseThrow(()->
-		new NotFoundException("Product with id " + id + " not found"));
+		Product addProducts = modelMapper.map(productDTO, Product.class);
+		productRepo.save(addProducts);
+		ProductDTO addProductDTO = modelMapper.map(addProducts, ProductDTO.class);
+		return addProductDTO;
 	}
+
+	@Override
+	public ProductDTO removeproducts( Long productId) {
+		// TODO Auto-generated method stub
+		Product product = productRepo.findById(productId)
+				.orElseThrow(()-> new NotFoundException("Product with id : " + productId + " is not available"));
+		productRepo.deleteById(productId);
+		ProductDTO removeDTO = modelMapper.map(product, ProductDTO.class);
+		return removeDTO;
+	}
+
+	
+	@Override
+	public ProductDTO updateproducts( Long productId, ProductDTO productDTO) {
+		// TODO Auto-generated method stub
+		Product exisitingProduct = productRepo.findById(productId)
+				.orElseThrow(()-> new NotFoundException("Product with id : " + productId + " is not available"));
+		
+		exisitingProduct.setProductName(productDTO.getProductName());
+		exisitingProduct.setProductPrice(productDTO.getProductPrice());
+		exisitingProduct.setProductDiscription(productDTO.getProductDiscription());
+		exisitingProduct.setProductExp(productDTO.getProductExp());
+		
+		Product updatedProducts = productRepo.save(exisitingProduct);
+		
+		ProductDTO updatedProductsDTO = modelMapper.map(updatedProducts, ProductDTO.class);
+		
+		return updatedProductsDTO;	
+	}
+
+	@Override
+	public ProductDTO getOneProduct(Long productId) {
+		// TODO Auto-generated method stub
+		Product forOneProduct = productRepo
+				.findById(productId).orElseThrow(()-> new NotFoundException("Product with id : " + productId + " is not available"));
+		ProductDTO forOneDTO = modelMapper.map(forOneProduct, ProductDTO.class);
+		return forOneDTO;
+	}
+	
+	
 	
 
 }
