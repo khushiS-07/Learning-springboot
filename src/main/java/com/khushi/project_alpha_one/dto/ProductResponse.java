@@ -12,5 +12,11 @@ import lombok.ToString;
 public class ProductResponse {
 	
 	private List<ProductDTO> content;
+	private Long totalElement; 
+	private int totalPages;
+	private int size;
+	private int number;
+	private int totalNumberOfElement;
+	private boolean isLastPage;
 
 }

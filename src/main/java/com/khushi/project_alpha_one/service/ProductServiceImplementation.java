@@ -7,6 +7,9 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.khushi.project_alpha_one.dto.ProductDTO;
@@ -28,17 +31,29 @@ public class ProductServiceImplementation implements ProductService {
 	List<Product> products = new ArrayList<>();
 
 	@Override
-	public ProductResponse getProducts() {
+	public ProductResponse getProducts(int pageNumber, int size) {
 		// TODO Auto-generated method stub
-		List<Product> products = productRepo.findAll();
+		Pageable pageRequest = PageRequest.of(pageNumber, size);
+		Page<Product> products = productRepo.findAll(pageRequest);
+		
 		List<ProductDTO> convertedProduct = products.stream()
 				.map(p-> modelMapper.map(p, ProductDTO.class))
 				.toList();
+		
 		ProductResponse productResponse = new ProductResponse();
+		
 		productResponse.setContent(convertedProduct);
+		productResponse.setNumber(products.getNumber());
+		productResponse.setSize(products.getSize());
+		productResponse.setTotalElement(products.getTotalElements());
+		productResponse.setTotalNumberOfElement(products.getNumberOfElements());
+		productResponse.setTotalPages(products.getTotalPages());
+		productResponse.setLastPage(products.isLast());
+		
 		return productResponse;
 	}
 
+	
 	@Override
 	public ProductDTO addProducts( ProductDTO productDTO) {
 		// TODO Auto-generated method stub
@@ -49,6 +64,7 @@ public class ProductServiceImplementation implements ProductService {
 		return addProductDTO;
 	}
 
+	
 	@Override
 	public ProductDTO removeproducts( Long productId) {
 		// TODO Auto-generated method stub
@@ -78,16 +94,58 @@ public class ProductServiceImplementation implements ProductService {
 		return updatedProductsDTO;	
 	}
 
+	
 	@Override
 	public ProductDTO getOneProduct(Long productId) {
 		// TODO Auto-generated method stub
 		Product forOneProduct = productRepo
-				.findById(productId).orElseThrow(()-> new NotFoundException("Product with id : " + productId + " is not available"));
+				.findById(productId)
+				.orElseThrow(()-> new NotFoundException("Product with id : " + productId + " is not available"));
 		ProductDTO forOneDTO = modelMapper.map(forOneProduct, ProductDTO.class);
 		return forOneDTO;
 	}
 	
+
+	@Override
+	public ProductDTO updateProductByName(Long productId, String newName) {
+		// TODO Auto-generated method stub
+		Product existingName = productRepo.findById(productId)
+				.orElseThrow(()-> new NotFoundException("Product with id : " + productId + " is not available"));
+		existingName.setProductName(newName);
+		
+		Product updateByName = productRepo.save(existingName);
+		
+		ProductDTO updatedNameResponse = modelMapper.map(updateByName, ProductDTO.class);
+		
+		return updatedNameResponse;
+		
+	}
+
 	
+	@Override
+	public ProductResponse getProductByAlpha(String alpha, int pageNumber, int size) {
+		// TODO Auto-generated method stub
+		Pageable pageable = PageRequest.of(pageNumber, size);
+		Page<Product> productName = productRepo
+				.findByProductNameStartingWithIgnoreCase(alpha, pageable);
+		
+		List<ProductDTO> productList = productName.stream()
+				.map(m-> modelMapper.map(m, ProductDTO.class))
+				.toList();
+		
+		ProductResponse responseForAlpha = new ProductResponse();
+		
+		responseForAlpha.setContent(productList);
+		responseForAlpha.setNumber(productName.getNumber());
+		responseForAlpha.setSize(productName.getSize());
+		responseForAlpha.setTotalElement(productName.getTotalElements());
+		responseForAlpha.setTotalNumberOfElement(productName.getNumberOfElements());
+		responseForAlpha.setTotalPages(productName.getTotalPages());
+		responseForAlpha.setLastPage(productName.isLast());
+		
+		return responseForAlpha;
+	}
 	
+
 
 }

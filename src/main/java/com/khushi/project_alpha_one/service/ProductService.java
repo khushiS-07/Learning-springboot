@@ -5,13 +5,12 @@ import java.util.List;
 
 import com.khushi.project_alpha_one.dto.ProductDTO;
 import com.khushi.project_alpha_one.dto.ProductResponse;
-import com.khushi.project_alpha_one.model.Product;
 
 public interface ProductService {
 	
 	// get product
 	
-	public ProductResponse getProducts();
+	public ProductResponse getProducts(int pageNumber, int size);
 	
 	// add product
 	
@@ -25,8 +24,18 @@ public interface ProductService {
 	
 	public ProductDTO updateproducts( Long productId, ProductDTO productDTO);
 	
-	// get one product details
+	// get one product details by id
 	
 	public ProductDTO getOneProduct( Long productId);
+	
+	// product name update by id using patch
+	
+	public ProductDTO updateProductByName(Long productId , String newName);
+	
+	//get product by alpha "A"
+	
+	public ProductResponse getProductByAlpha(String alpha, int pageNumber, int size);
+	
+	
 		
 }
